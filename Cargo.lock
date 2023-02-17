@@ -33,7 +33,6 @@ dependencies = [
  "envy",
  "gql_client",
  "headless_chrome",
- "reqwest",
  "serde",
  "tokio",
  "url",

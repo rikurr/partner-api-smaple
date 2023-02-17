@@ -1,8 +1,4 @@
-use std::{
-    collections::{hash_map, HashMap},
-    error::Error,
-    fs,
-};
+use std::{collections::HashMap, error::Error, fs};
 
 use serde::{Deserialize, Serialize};
 use url::Url;
