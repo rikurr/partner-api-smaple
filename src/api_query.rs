@@ -3,12 +3,12 @@ use serde::{Deserialize, Serialize};
 #[derive(Serialize, Debug)]
 pub struct RelationshipInstalledQuery<'a> {
     pub query: &'a str,
-    pub variables: RelationshipInstalledVariables,
+    pub variables: RelationshipInstalledVariables<'a>,
 }
 
 #[derive(Serialize, Debug)]
-pub struct RelationshipInstalledVariables {
-    pub id: String,
+pub struct RelationshipInstalledVariables<'a> {
+    pub id: &'a str,
     pub cursor: String,
 }
 
@@ -16,7 +16,7 @@ const RELATIONSHIP_INSTALLED_QUERY: &str = r#"
 query($cursor: String, $id: ID!) {
     app(id: $id) {
         name
-        events(types: [RELATIONSHIP_INSTALLED], after: $cursor, first: 100) {
+        events(types: [RELATIONSHIP_INSTALLED], after: $cursor, first: 50) {
             edges {
                 cursor
                 node {
@@ -49,8 +49,16 @@ pub struct App {
 }
 
 #[derive(Deserialize, Debug)]
+#[serde(rename_all(deserialize = "camelCase"))]
 pub struct Events {
     pub edges: Vec<Edges>,
+    pub page_info: PageInfo,
+}
+
+#[derive(Deserialize, Debug)]
+#[serde(rename_all(deserialize = "camelCase"))]
+pub struct PageInfo {
+    pub has_next_page: bool,
 }
 
 #[derive(Deserialize, Debug)]
@@ -75,15 +83,12 @@ pub struct Shop {
 }
 
 impl<'a> RelationshipInstalledQuery<'a> {
-    pub fn new(cursor: Option<&str>, id: &'a str) -> Self {
-        let cursor = cursor.unwrap_or("");
+    pub fn new(cursor: Option<String>, id: &'a str) -> Self {
+        let cursor = cursor.unwrap_or(String::new());
 
         Self {
             query: RELATIONSHIP_INSTALLED_QUERY,
-            variables: RelationshipInstalledVariables {
-                id: id.to_string(),
-                cursor: cursor.to_string(),
-            },
+            variables: RelationshipInstalledVariables { id, cursor },
         }
     }
 }
